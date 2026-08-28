@@ -1,0 +1,19 @@
+# 依赖与重型目录
+node_modules/
+package-lock.json
+
+# Web 版产品（distribution/ 是独立仓库 shangzi-studio，不在此重复）
+distribution/
+
+# 原型与内部状态
+demo/
+tests/
+STATUS.md
+产品/
+演进思路-.md
+2026-08-17-后端开发规划.md
+
+# 打包产物与系统垃圾
+*.zip
+.DS_Store
+._*

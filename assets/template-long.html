@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>上咨方案长页母版 | shangzi-design-system</title>
+
+<!-- ============================================================
+  上咨汇报设计系统 · 滚动长页母版（方案/提案）
+  - 骨架源自早期提案长页，全部 class 化（去 545 处内联 style）
+  - 重配色为上咨蓝梯度 + 暖黄点睛（见 brand-dna.md）
+  - clamp() 流式字号 + reveal 错峰入场 + 侧边导航 + 进度条
+  - 修旧长页坏味道：去重复 id、未定义色收编变量、文本箭头换 CSS、div 严格匹配
+  - 用法：从本文件拷贝起步，按 section 填内容
+============================================================ -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,500;1,700&family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --blue-deep:#0A3D8A; --blue:#0E58C4; --blue-mid:#4A8EF2;
+  --blue-light:#7AB3F5; --blue-bg:#F0F4FA;
+  --gray:#60616B; --ink:#1A1A2E; --ink-light:#4A4A5A; --ink-faint:#8A8A9A;
+  --yellow:#F4D758; --yellow-soft:#FFF3CD; --red:#E84A5F;
+  --dark-panel:#0F2A4A;
+  --bg:#F0F4FA;             /* 长页页面背景（冷蓝，与 deck 一致，不用旧参考 skill 暖底） */
+  --surface:#FFFFFF;        /* section 默认白底阅读面 */
+  --blue-soft:rgba(14,88,196,.10);
+  --yellow-soft-bg:rgba(244,215,88,.35);
+  --font-cn:'Noto Sans SC','PingFang SC',-apple-system,sans-serif;
+  --font-serif:'Noto Serif SC',serif;
+  --font-en:'Fraunces',serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-cn);color:var(--ink);background:var(--bg);line-height:1.7;
+  -webkit-font-smoothing:antialiased;}
+::selection{background:var(--yellow);color:var(--ink);}
+
+/* ===== Section 容器 ===== */
+.sec{position:relative;padding:clamp(72px,11vh,140px) 0;overflow:hidden;background:var(--surface);}
+.sec--alt{background:var(--blue-bg);}        /* 浅蓝交替底 */
+.sec--dark{background:var(--dark-panel);color:#fff;}
+.wrap{max-width:1280px;margin:0 auto;padding:0 clamp(24px,5vw,64px);position:relative;}
+
+/* ===== 标题三件套 ===== */
+.kicker{font-family:var(--font-en);font-style:italic;font-size:clamp(1rem,1.6vw,1.25rem);
+  color:var(--blue);letter-spacing:.04em;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.kicker::after{content:'';display:block;width:36px;height:3px;background:var(--yellow);border-radius:2px;}
+.sec--dark .kicker{color:var(--yellow);}
+.sec--dark .kicker::after{background:var(--blue-light);}
+.s-title{font-family:var(--font-serif);font-weight:900;
+  font-size:clamp(1.7rem,3.7vw,2.8rem);line-height:1.2;color:var(--ink);margin-bottom:14px;}
+.s-title .hl{background:linear-gradient(transparent 58%,var(--yellow-soft-bg) 58%);}
+.s-title .b{color:var(--blue);}
+.lead{font-size:clamp(1rem,1.4vw,1.15rem);color:var(--ink-light);max-width:760px;margin-bottom:36px;}
+.sec--dark .s-title{color:#fff;}
+.sec--dark .lead{color:rgba(255,255,255,.78);}
+
+/* 装饰大字 */
+.big-ghost{position:absolute;font-family:var(--font-en);font-weight:700;
+  font-size:clamp(8rem,22vw,20rem);color:var(--blue);opacity:.08;pointer-events:none;
+  line-height:1;z-index:0;}
+
+/* ===== reveal 入场动效 ===== */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
+.reveal.in{opacity:1;transform:none;}
+.rd1{transition-delay:.08s}.rd2{transition-delay:.16s}.rd3{transition-delay:.24s}
+.rd4{transition-delay:.32s}.rd5{transition-delay:.40s}.rd6{transition-delay:.48s}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;}}
+
+/* ===== 通用栅格 ===== */
+.grid{display:grid;gap:clamp(20px,2.5vw,36px);}
+.cols-2{grid-template-columns:1fr 1fr;}
+.cols-3{grid-template-columns:repeat(3,1fr);}
+.cols-6{grid-template-columns:repeat(3,1fr);}
+@media (max-width:900px){.cols-2,.cols-3,.cols-6{grid-template-columns:1fr;}}
+
+/* ===== 卡片/标签 ===== */
+.box{background:#fff;border:1px solid var(--line,#E2E8F0);border-radius:14px;padding:clamp(24px,2.5vw,36px);position:relative;}
+.box-blue{border-top:4px solid var(--blue);}
+.box-yellow{border-top:4px solid var(--yellow);}
+.box-deep{border-top:4px solid var(--blue-deep);}
+.tag{display:inline-block;font-size:.85rem;font-weight:700;color:#fff;background:var(--blue);
+  border-radius:6px;padding:3px 12px;}
+.tag--ghost{background:transparent;color:var(--blue);border:1px solid var(--blue);}
+.kw{font-size:clamp(1.3rem,2vw,1.6rem);font-weight:800;color:var(--ink);margin-bottom:6px;}
+.desc{font-size:1rem;color:var(--ink-light);}
+
+/* ===== 封面飞轮 ===== */
+.flywheel{display:grid;grid-template-columns:minmax(280px,360px) 1fr;gap:40px;align-items:center;}
+.fw-stage{position:relative;aspect-ratio:1;}
+.fw-orbit{position:absolute;inset:8%;border:1px dashed var(--blue-light);border-radius:50%;opacity:.5;}
+.fw-orbit.o2{inset:20%;border-color:var(--blue-mid);opacity:.4;}
+.fw-ring{position:absolute;inset:12%;border-radius:50%;
+  background:conic-gradient(var(--blue) 0 25%,transparent 0 50%,var(--yellow) 0 75%,transparent 0);
+  -webkit-mask:radial-gradient(transparent 58%,#000 59%);
+          mask:radial-gradient(transparent 58%,#000 59%);
+  animation:spin 30s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.fw-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.fw-pi{font-family:var(--font-serif);font-weight:900;font-size:clamp(3rem,8vw,5rem);color:var(--blue);}
+.fw-pi small{display:block;font-family:var(--font-cn);font-size:.9rem;color:var(--ink-light);font-weight:400;text-align:center;}
+.fw-node{position:absolute;inset:0;}
+.fw-pill{position:absolute;display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--blue);
+  border-radius:20px;padding:6px 12px;font-size:.9rem;font-weight:600;box-shadow:0 4px 14px rgba(14,88,196,.15);}
+.fw-pill .n{font-family:var(--font-en);color:var(--blue);font-weight:700;}
+.fw-pill.t1{top:6%;left:50%;transform:translateX(-50%);}
+.fw-pill.t2{top:50%;right:0;transform:translateY(-50%);}
+.fw-pill.t3{bottom:6%;left:50%;transform:translateX(-50%);}
+.fw-pill.t4{top:50%;left:0;transform:translateY(-50%);}
+.fw-text h3{font-family:var(--font-serif);font-size:clamp(1.3rem,2.2vw,1.8rem);margin-bottom:14px;}
+.fw-text p{color:var(--ink-light);}
+.fw-text .flow{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;}
+.fw-text .flow span{font-size:.85rem;background:var(--blue-bg);color:var(--blue-deep);padding:4px 10px;border-radius:6px;}
+@media (max-width:560px){.flywheel{grid-template-columns:1fr;}}
+
+/* ===== 金字塔（class 化，去旧长页内联 style）===== */
+.pyramid{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:760px;margin:0 auto;}
+.pyr-tier{width:60%;background:linear-gradient(160deg,var(--blue),var(--blue-deep));color:#fff;
+  border-radius:14px;text-align:center;padding:16px 20px;}
+.pyr-tier.t2{width:75%;background:linear-gradient(160deg,var(--blue-mid),var(--blue));}
+.pyr-tier.t3{width:90%;background:linear-gradient(160deg,var(--blue-light),var(--blue-mid));}
+.pyr-tier .lvl{font-family:var(--font-en);font-size:.8rem;opacity:.85;}
+.pyr-tier .ttl{font-size:1.1rem;font-weight:700;margin:2px 0;}
+.pyr-tier .chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:6px;}
+.pyr-tier .chips span{font-size:.75rem;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:6px;}
+.pyr-arrow{color:var(--blue-light);font-size:1.2rem;line-height:1;}
+
+/* ===== 三层组织架构图（class 化）===== */
+.org-chart{display:flex;flex-direction:column;align-items:center;gap:0;}
+.org-tier{display:flex;width:100%;border:1px solid var(--blue);border-radius:16px;overflow:hidden;background:#fff;}
+.org-tier .tier-label{writing-mode:vertical-rl;padding:14px 8px;background:var(--blue);color:#fff;
+  font-weight:700;letter-spacing:.1em;}
+.org-tier .tier-body{flex:1;display:flex;gap:14px;padding:18px;flex-wrap:wrap;align-items:center;}
+.org-node{flex:1;min-width:160px;border-radius:10px;padding:14px;text-align:center;border:1px solid;}
+.org-node--blue{background:var(--blue-bg);border-color:var(--blue);color:var(--blue-deep);}
+.org-node--deep{background:var(--dark-panel);border-color:var(--dark-panel);color:#fff;}
+.org-node--yellow{background:var(--yellow-soft);border-color:var(--yellow);color:var(--ink);}
+.org-node .ico{font-size:1.4rem;margin-bottom:4px;}
+.org-node .nm{font-weight:700;}
+.org-connector{position:relative;width:100%;height:36px;}
+.org-connector::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;
+  background:var(--blue);opacity:.3;transform:translateX(-50%);}
+
+/* ===== 水平时间轴 ===== */
+.timeline-h{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,28px);position:relative;}
+.timeline-h::before{content:'';position:absolute;top:26px;left:8%;right:8%;height:3px;
+  background:linear-gradient(90deg,var(--blue-deep),var(--blue),var(--blue-light));border-radius:2px;}
+.phase-col{position:relative;}
+.phase-dot{width:52px;height:52px;border-radius:50%;background:#fff;border:3px solid var(--blue);
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-weight:900;
+  color:var(--blue);margin-bottom:16px;position:relative;z-index:1;}
+.phase-col:nth-child(2) .phase-dot{border-color:var(--blue-mid);color:var(--blue-mid);}
+.phase-col:nth-child(3) .phase-dot{border-color:var(--blue-light);color:var(--blue-light);}
+.phase-card{background:#fff;border:1px solid var(--line,#E2E8F0);border-radius:12px;padding:18px;}
+.phase-card .ph-name{font-weight:700;font-size:1.05rem;margin-bottom:4px;}
+.phase-card .ph-nature{font-size:.85rem;color:var(--ink-faint);margin-bottom:8px;}
+.phase-card .role-line{display:flex;gap:8px;align-items:center;font-size:.85rem;margin-top:6px;}
+.phase-card .who{font-weight:600;padding:2px 8px;border-radius:6px;background:var(--blue-bg);color:var(--blue-deep);}
+@media (max-width:900px){.timeline-h{grid-template-columns:1fr;}.timeline-h::before{display:none;}}
+
+/* ===== 步骤块 step-block ===== */
+.step-block{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.step-item{position:relative;padding-left:20px;}
+.step-item::before{content:'';position:absolute;left:0;top:6px;width:8px;height:8px;border-radius:50%;background:var(--blue);}
+.step-item .st-num{font-family:var(--font-en);color:var(--blue-light);font-weight:700;font-size:.9rem;}
+.step-item h4{font-size:1.05rem;margin:2px 0 6px;}
+.step-item p{font-size:.9rem;color:var(--ink-light);}
+@media (max-width:900px){.step-block{grid-template-columns:1fr;}}
+
+/* ===== 公式框 / 暗色面板 ===== */
+.formula-box{background:var(--dark-panel);color:#fff;border-radius:16px;padding:clamp(28px,3vw,44px);text-align:center;}
+.formula-box .formula{font-family:var(--font-en);font-size:clamp(1.4rem,3vw,2.2rem);font-weight:700;color:var(--yellow);margin:10px 0;}
+.sub-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:24px;}
+.sub-kpi .kpi{text-align:center;}
+.sub-kpi .kpi .v{font-family:var(--font-en);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:var(--blue-light);}
+.sub-kpi .kpi .l{font-size:.85rem;opacity:.8;}
+@media (max-width:560px){.sub-kpi{grid-template-columns:1fr;}}
+
+/* ===== 侧边导航 + 进度条 ===== */
+#sidenav{position:fixed;right:24px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;z-index:50;}
+#sidenav a{width:10px;height:10px;border-radius:50%;background:var(--blue-light);opacity:.5;transition:.2s;display:block;}
+#sidenav a.on{opacity:1;background:var(--blue);transform:scale(1.4);}
+#sidenav a::after{content:attr(data-l);position:absolute;right:18px;background:var(--dark-panel);color:#fff;
+  font-size:.75rem;padding:3px 8px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s;}
+#sidenav a:hover::after{opacity:1;}
+#prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--yellow));z-index:60;width:0;}
+@media (max-width:900px){#sidenav{display:none;}}
+
+/* ===== 打印 ===== */
+@page{size:A4;margin:14mm;}
+@media print{
+  #sidenav,#prog{display:none !important;}
+  .sec{padding:20px 0;page-break-inside:avoid;break-inside:avoid;}
+  .reveal{opacity:1 !important;transform:none !important;}
+  .sec--dark{background:#1a2a40 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<nav id="sidenav"></nav>
+
+<!-- ============ P1 封面 · 飞轮 ============ -->
+<section class="sec" id="p1" data-label="封面">
+  <div class="wrap">
+    <div class="kicker reveal">项目提案</div>
+    <h1 class="s-title reveal rd1">项目主标题 <span class="hl">核心命题</span></h1>
+    <p class="lead reveal rd2">一句话点明项目价值主张与目标。</p>
+    <div class="flywheel reveal rd3">
+      <div class="fw-stage">
+        <div class="fw-orbit"></div><div class="fw-orbit o2"></div><div class="fw-ring"></div>
+        <div class="fw-center"><div class="fw-pi">循环<small>正向循环</small></div></div>
+        <div class="fw-node">
+          <span class="fw-pill t1"><span class="n">01</span>环节一</span>
+          <span class="fw-pill t2"><span class="n">02</span>环节二</span>
+          <span class="fw-pill t3"><span class="n">03</span>环节三</span>
+          <span class="fw-pill t4"><span class="n">04</span>环节四</span>
+        </div>
+      </div>
+      <div class="fw-text">
+        <h3>飞轮理念标题</h3>
+        <div class="flow"><span>链路一</span><span>链路二</span><span>链路三</span></div>
+        <p>说明文字。飞轮用 conic-gradient 旋转环 + 四方位节点，表达闭环增益。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ P2 项目命题 · 暗色面板 + 公式 ============ -->
+<section class="sec sec--dark" id="p2" data-label="项目命题">
+  <div class="wrap">
+    <div class="kicker reveal">Core Thesis</div>
+    <h2 class="s-title reveal rd1">数字生产力浓度</h2>
+    <div class="formula-box reveal rd2">
+      <p>生产力浓度 = 硅基产出 /（硅基 + 碳基）投入</p>
+      <div class="formula">C = S / (S + C)</div>
+      <div class="sub-kpi">
+        <div class="kpi"><div class="v">指标 A</div><div class="l">子指标说明</div></div>
+        <div class="kpi"><div class="v">指标 B</div><div class="l">子指标说明</div></div>
+        <div class="kpi"><div class="v">指标 C</div><div class="l">子指标说明</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ P3 项目背景 · 三段递进 ============ -->
+<section class="sec sec--alt" id="p3" data-label="项目背景">
+  <div class="wrap">
+    <div class="kicker reveal">Background</div>
+    <h2 class="s-title reveal rd1">项目背景与<span class="b">战略意图</span></h2>
+    <div class="step-block">
+      <div class="step-item reveal rd1"><div class="st-num">01</div><h4>信息化</h4><p>说明文字。</p></div>
+      <div class="step-item reveal rd2"><div class="st-num">02</div><h4>数字化</h4><p>说明文字。</p></div>
+      <div class="step-item reveal rd3"><div class="st-num">03</div><h4>智能化</h4><p>说明文字。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ P4 组织全景图 · 三层架构 ============ -->
+<section class="sec" id="p4" data-label="组织全景">
+  <div class="wrap">
+    <div class="kicker reveal">Organization</div>
+    <h2 class="s-title reveal rd1">硅基员工组织全景图</h2>
+    <div class="org-chart reveal rd2">
+      <div class="org-tier">
+        <div class="tier-label">第一层 · 公司层</div>
+        <div class="tier-body">
+          <div class="org-node org-node--deep"><div class="ico">👤</div><div class="nm">总部高层</div></div>
+          <div class="org-node org-node--blue"><div class="ico">🤖</div><div class="nm">公司级硅基员工</div></div>
+          <div class="org-node org-node--yellow"><div class="ico">💼</div><div class="nm">硅基个人助手</div></div>
+        </div>
+      </div>
+      <div class="org-connector"></div>
+      <div class="org-tier">
+        <div class="tier-label">第二层 · 部门层</div>
+        <div class="tier-body">
+          <div class="org-node org-node--blue"><div class="nm">部门 A</div></div>
+          <div class="org-node org-node--blue"><div class="nm">部门 B</div></div>
+          <div class="org-node org-node--blue"><div class="nm">部门 C</div></div>
+        </div>
+      </div>
+      <div class="org-connector"></div>
+      <div class="org-tier">
+        <div class="tier-label">第三层 · 岗位层</div>
+        <div class="tier-body">
+          <div class="org-node org-node--yellow"><div class="nm">岗位 1</div></div>
+          <div class="org-node org-node--yellow"><div class="nm">岗位 2</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ P5 Skill 体系 · 金字塔 ============ -->
+<section class="sec sec--alt" id="p5" data-label="Skill 体系">
+  <div class="wrap">
+    <div class="kicker reveal">Skill Stack</div>
+    <h2 class="s-title reveal rd1">Skill 层级<span class="b">金字塔</span></h2>
+    <div class="pyramid reveal rd2">
+      <div class="pyr-tier"><div class="lvl">Company Level</div><div class="ttl">公司层 Skill</div>
+        <div class="chips"><span>通用一</span><span>通用二</span></div></div>
+      <div class="pyr-arrow">▼</div>
+      <div class="pyr-tier t2"><div class="lvl">Department Level</div><div class="ttl">部门层 Skill</div>
+        <div class="chips"><span>定制一</span><span>定制二</span></div></div>
+      <div class="pyr-arrow">▼</div>
+      <div class="pyr-tier t3"><div class="lvl">Personal Level</div><div class="ttl">个人助手 Skill</div>
+        <div class="chips"><span>助手一</span><span>助手二</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ P6 实施保障 · 时间轴 ============ -->
+<section class="sec" id="p6" data-label="实施保障">
+  <div class="wrap">
+    <div class="kicker reveal">Roadmap</div>
+    <h2 class="s-title reveal rd1">实施保障与<span class="hl">三阶段</span></h2>
+    <div class="timeline-h">
+      <div class="phase-col reveal rd1">
+        <div class="phase-dot">壹</div>
+        <div class="phase-card"><div class="ph-name">阶段一</div><div class="ph-nature">性质</div>
+          <div class="role-line"><span class="who">甲方</span><span>职责描述</span></div>
+          <div class="role-line"><span class="who">乙方</span><span>职责描述</span></div>
+        </div>
+      </div>
+      <div class="phase-col reveal rd2">
+        <div class="phase-dot">贰</div>
+        <div class="phase-card"><div class="ph-name">阶段二</div><div class="ph-nature">性质</div>
+          <div class="role-line"><span class="who">甲方</span><span>职责描述</span></div></div>
+      </div>
+      <div class="phase-col reveal rd3">
+        <div class="phase-dot">叁</div>
+        <div class="phase-card"><div class="ph-name">阶段三</div><div class="ph-nature">性质</div>
+          <div class="role-line"><span class="who">甲方</span><span>职责描述</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ P7 核心考核（暗色收尾）============ -->
+<section class="sec sec--dark" id="p7" data-label="核心考核">
+  <div class="wrap">
+    <div class="kicker reveal">KPI</div>
+    <h2 class="s-title reveal rd1">核心考核指标</h2>
+    <div class="sub-kpi reveal rd2" style="grid-template-columns:repeat(4,1fr);">
+      <div class="kpi"><div class="v">指标 1</div><div class="l">说明</div></div>
+      <div class="kpi"><div class="v">指标 2</div><div class="l">说明</div></div>
+      <div class="kpi"><div class="v">指标 3</div><div class="l">说明</div></div>
+      <div class="kpi"><div class="v">指标 4</div><div class="l">说明</div></div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const secs=[...document.querySelectorAll('.sec')];
+  const nav=document.getElementById('sidenav');
+  // 自动构建侧边导航
+  secs.forEach((s,i)=>{
+    const a=document.createElement('a');
+    a.href='#'+(s.id||('sec'+i));
+    a.setAttribute('data-l',s.dataset.label||('第'+(i+1)+'节'));
+    nav.appendChild(a);
+  });
+  const navItems=[...nav.children];
+
+  // reveal 入场
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // 侧边导航高亮
+  const activeIO=new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      if(e.isIntersecting){
+        const i=secs.indexOf(e.target);
+        navItems.forEach((n,j)=>n.classList.toggle('on',j===i));
+      }
+    });
+  },{threshold:.4});
+  secs.forEach(s=>activeIO.observe(s));
+
+  // 顶部进度条
+  const prog=document.getElementById('prog');
+  function onScroll(){
+    const h=document.documentElement.scrollHeight-innerHeight;
+    prog.style.width=(window.scrollY/h*100)+'%';
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();
+})();
+</script>
+</body>
+</html>

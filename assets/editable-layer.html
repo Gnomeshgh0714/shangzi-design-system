@@ -1,0 +1,100 @@
+<!-- ============================================================
+  上咨汇报设计系统 · 可编辑层（注入 deck 的 </body> 前）
+  - 右下角 ✏️ 进入编辑模式：点文字即可修改（contenteditable）
+  - 浮动工具条：加粗/斜体/字号/颜色/高亮
+  - 导出 PDF（逐页打印，按钮切换页提示逐面板成页）/ 保存 HTML
+  - 适配 deck 的 #stage transform:scale（工具条不受缩放影响）
+  移植自旧参考 skill editable-layer，修复其缺缩放适配与导出提示。
+============================================================ -->
+<style>
+#sz-editbar{position:fixed;right:18px;bottom:18px;z-index:9999;display:flex;gap:8px;align-items:center;
+  font-family:"PingFang SC","Microsoft YaHei",sans-serif;}
+#sz-toggle{width:48px;height:48px;border-radius:50%;border:none;background:#0E58C4;color:#fff;
+  font-size:22px;cursor:pointer;box-shadow:0 4px 14px rgba(14,88,196,.4);}
+#sz-tools{display:none;background:#0F2A4A;padding:8px 10px;border-radius:10px;gap:6px;align-items:center;color:#fff;}
+#sz-tools.on{display:flex;}
+#sz-tools button,#sz-tools select{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);
+  border-radius:6px;padding:5px 9px;font-size:13px;cursor:pointer;font-family:inherit;}
+#sz-tools button:hover,#sz-tools select:hover{background:rgba(255,255,255,.22);}
+#sz-tools .sz-act{background:#F4D758;color:#1A1A2E;font-weight:700;border-color:#F4D758;}
+#sz-tools input[type=color]{width:28px;height:28px;padding:0;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:none;cursor:pointer;}
+.sz-editing [contenteditable]{outline:2px dashed #0E58C4;outline-offset:2px;cursor:text;}
+.sz-editing .navB,.sz-editing #pageno{pointer-events:none;opacity:.4;}
+#sz-hint{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:#0F2A4A;color:#fff;
+  padding:8px 16px;border-radius:8px;font-size:13px;z-index:9999;display:none;}
+#sz-hint.on{display:block;}
+</style>
+
+<div id="sz-hint">编辑模式：点文字即可修改。导出 PDF 前请逐个点开按钮切换页的面板，确保每张图表都已渲染。</div>
+<div id="sz-editbar">
+  <div id="sz-tools">
+    <button data-cmd="bold" title="加粗">B</button>
+    <button data-cmd="italic" title="斜体"><i>I</i></button>
+    <select id="sz-size" title="字号">
+      <option value="2">小</option><option value="3" selected>常规</option>
+      <option value="4">大</option><option value="5">特大</option><option value="6">标题</option>
+    </select>
+    <input type="color" id="sz-color" value="#0E58C4" title="文字色">
+    <button data-cmd="hiliteColor" data-val="#F4D758" title="黄色高亮">高亮</button>
+    <span style="width:1px;height:20px;background:rgba(255,255,255,.2);"></span>
+    <button class="sz-act" id="sz-pdf">导出 PDF</button>
+    <button class="sz-act" id="sz-save">保存 HTML</button>
+  </div>
+  <button id="sz-toggle">✏️</button>
+</div>
+
+<script>
+(function(){
+  const toggle=document.getElementById('sz-toggle');
+  const tools=document.getElementById('sz-tools');
+  const hint=document.getElementById('sz-hint');
+  let editing=false;
+
+  toggle.onclick=()=>{
+    editing=!editing;
+    document.body.classList.toggle('sz-editing',editing);
+    tools.classList.toggle('on',editing);
+    hint.classList.toggle('on',editing);
+    toggle.textContent=editing?'✖':'✏️';
+    if(editing){
+      // 进入编辑：给所有文字节点所在元素开 contenteditable
+      document.querySelectorAll('.slide .pgtitle,.slide .ctitle,.slide .ins-head,.slide .ins-grp li,'
+        +'.slide .kfhead,.slide .kflist li,.slide .explain,.slide .pbtn').forEach(el=>{
+        el.setAttribute('contenteditable','true');
+      });
+    }else{
+      document.querySelectorAll('[contenteditable]').forEach(el=>el.removeAttribute('contenteditable'));
+    }
+  };
+
+  // 工具条命令
+  tools.querySelectorAll('button[data-cmd]').forEach(btn=>{
+    btn.onclick=()=>{
+      const cmd=btn.dataset.cmd, val=btn.dataset.val||null;
+      document.execCommand(cmd,false,val);
+    };
+  });
+  document.getElementById('sz-size').onchange=e=>document.execCommand('fontSize',false,e.target.value);
+  document.getElementById('sz-color').onchange=e=>document.execCommand('foreColor',false,e.target.value);
+
+  // 导出 PDF：先退出编辑，提示逐面板成页，再触发打印
+  document.getElementById('sz-pdf').onclick=()=>{
+    if(editing) toggle.click();
+    hint.classList.add('on');
+    hint.textContent='⚠️ 按钮切换页请先逐个点开每个面板，确保图表全部渲染，再在打印对话框选「另存为 PDF」。';
+    setTimeout(()=>{window.print();},400);
+  };
+
+  // 保存 HTML：序列化当前文档
+  document.getElementById('sz-save').onclick=()=>{
+    if(editing) toggle.click();
+    const html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=(document.title||'deck')+'_edited.html';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  };
+})();
+</script>

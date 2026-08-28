@@ -1,0 +1,20 @@
+{
+  "name": "shangzi-design-system",
+  "version": "1.0.0",
+  "description": "上咨集团 HTML 汇报/提案制作 skill 的导出工具依赖",
+  "private": true,
+  "scripts": {
+    "pdf": "node generate_pdf.cjs",
+    "png": "node generate_pdf.cjs --png",
+    "pptx": "node convert_pptx.cjs",
+    "test": "node --test tests/*.test.mjs",
+    "build:inline-template": "node scripts/build-inline-template.cjs"
+  },
+  "dependencies": {
+    "puppeteer": "^23.0.0",
+    "pptxgenjs": "^3.12.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
